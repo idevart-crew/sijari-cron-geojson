@@ -1,0 +1,27 @@
+name: GeoJSON Sync
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch geojson
+        run: |
+          curl \
+            -H "X-CRON-KEY: ${{ secrets.CRON_KEY }}" \
+            https://sijari.pusdataru.jatengprov.go.id/backend/api/geojson/cron-get-all \
+            -o data/all.geojson
+
+      - name: Commit
+        run: |
+          git config user.name "geo-bot"
+          git config user.email "bot@github.com"
+          git add data/all.geojson
+          git commit -m "update geojson" || echo "no change"
+          git push
