@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch geojson aliran (LineString)
+      - name: Fetch geojson channel (LineString)
         run: |
           curl -f \
             -H "X-CRON-KEY: ${{ secrets.CRON_KEY }}" \
@@ -29,10 +29,17 @@ jobs:
             https://sijari.pusdataru.jatengprov.go.id/backend/api/geojson/cron-get-areal \
             -o data/areal.geojson
 
+      - name: Fetch aset building (Point)
+        run: |
+          curl -f \
+            -H "X-CRON-KEY: ${{ secrets.CRON_KEY }}" \
+            https://sijari.pusdataru.jatengprov.go.id/backend/api/geojson/cron-get-building \
+            -o data/building.geojson
+
       - name: Commit & Push
         run: |
           git config user.name "geo-bot"
           git config user.email "bot@github.com"
-          git add data/all.geojson data/areal.geojson
+          git add data/all.geojson data/areal.geojson data/building.geojson
           git commit -m "update geojson $(date '+%Y-%m-%d %H:%M')" || echo "no change"
           git push
