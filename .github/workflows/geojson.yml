@@ -2,26 +2,37 @@ name: GeoJSON Sync
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "0 * * * *"   # setiap jam
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch geojson
+      - name: Fetch geojson aliran (LineString)
         run: |
-          curl \
+          curl -f \
             -H "X-CRON-KEY: ${{ secrets.CRON_KEY }}" \
             https://sijari.pusdataru.jatengprov.go.id/backend/api/geojson/cron-get-all \
             -o data/all.geojson
 
-      - name: Commit
+      - name: Fetch geojson areal (Polygon / MultiPolygon)
+        run: |
+          curl -f \
+            -H "X-CRON-KEY: ${{ secrets.CRON_KEY }}" \
+            https://sijari.pusdataru.jatengprov.go.id/backend/api/geojson/cron-get-areal \
+            -o data/areal.geojson
+
+      - name: Commit & Push
         run: |
           git config user.name "geo-bot"
           git config user.email "bot@github.com"
-          git add data/all.geojson
-          git commit -m "update geojson" || echo "no change"
+          git add data/all.geojson data/areal.geojson
+          git commit -m "update geojson $(date '+%Y-%m-%d %H:%M')" || echo "no change"
           git push
