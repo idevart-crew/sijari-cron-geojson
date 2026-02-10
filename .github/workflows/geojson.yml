@@ -2,7 +2,7 @@ name: GeoJSON Sync
 
 on:
   schedule:
-    - cron: "0 * * * *"   # setiap jam
+    - cron: "0 1-23/4 * * *"
   workflow_dispatch:
 
 permissions:
